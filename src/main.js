@@ -689,55 +689,127 @@ class JumpMatViewer {
   createTripodWithPhone() {
     const group = new THREE.Group();
     
-    const metalColor = 0x333333;
-    const phoneColor = 0x1a1a1a;
+    // 使用更亮的颜色 - 银色/白色系
+    const silverColor = 0xb8b8b8;        // 银色
+    const darkSilver = 0x888888;         // 深银色
+    const whiteColor = 0xffffff;         // 白色
+    const phoneFrameColor = 0xe0e0e0;    // 浅灰色手机边框
     
-    // 三脚架腿
-    const legGeometry = new THREE.CylinderGeometry(0.015, 0.02, 1.2, 6);
-    const legMaterial = new THREE.MeshStandardMaterial({ color: metalColor, metalness: 0.8, roughness: 0.3 });
+    // 三脚架腿 - 银色金属
+    const legGeometry = new THREE.CylinderGeometry(0.012, 0.018, 1.0, 8);
+    const legMaterial = new THREE.MeshStandardMaterial({ 
+      color: silverColor, 
+      metalness: 0.9, 
+      roughness: 0.2 
+    });
     
     for (let i = 0; i < 3; i++) {
       const leg = new THREE.Mesh(legGeometry, legMaterial);
       const angle = (i * 2 * Math.PI) / 3;
-      leg.position.set(Math.sin(angle) * 0.3, 0.6, Math.cos(angle) * 0.3);
-      leg.rotation.x = Math.PI / 12;
-      leg.rotation.z = -Math.sin(angle) * Math.PI / 12;
+      leg.position.set(Math.sin(angle) * 0.25, 0.5, Math.cos(angle) * 0.25);
+      leg.rotation.x = Math.PI / 10;
+      leg.rotation.z = -Math.sin(angle) * Math.PI / 10;
       group.add(leg);
+      
+      // 腿部关节装饰
+      const jointGeometry = new THREE.SphereGeometry(0.02, 8, 8);
+      const joint = new THREE.Mesh(jointGeometry, legMaterial);
+      joint.position.set(Math.sin(angle) * 0.12, 0.95, Math.cos(angle) * 0.12);
+      group.add(joint);
+    }
+    
+    // 三脚架脚垫 - 橙色橡胶
+    const footMaterial = new THREE.MeshStandardMaterial({ color: 0xff6600, roughness: 0.8 });
+    for (let i = 0; i < 3; i++) {
+      const footGeometry = new THREE.CylinderGeometry(0.025, 0.03, 0.02, 8);
+      const foot = new THREE.Mesh(footGeometry, footMaterial);
+      const angle = (i * 2 * Math.PI) / 3;
+      foot.position.set(Math.sin(angle) * 0.35, 0.01, Math.cos(angle) * 0.35);
+      group.add(foot);
     }
     
     // 中心连接柱
-    const centerGeometry = new THREE.CylinderGeometry(0.02, 0.025, 0.8, 8);
-    const center = new THREE.Mesh(centerGeometry, legMaterial);
-    center.position.y = 1.3;
+    const centerGeometry = new THREE.CylinderGeometry(0.018, 0.022, 0.6, 12);
+    const centerMaterial = new THREE.MeshStandardMaterial({ 
+      color: darkSilver, 
+      metalness: 0.8, 
+      roughness: 0.3 
+    });
+    const center = new THREE.Mesh(centerGeometry, centerMaterial);
+    center.position.y = 1.2;
     group.add(center);
     
-    // 手机夹持器
-    const holderGeometry = new THREE.BoxGeometry(0.1, 0.05, 0.08);
-    const holder = new THREE.Mesh(holderGeometry, legMaterial);
-    holder.position.y = 1.75;
+    // 云台头 - 球形
+    const headGeometry = new THREE.SphereGeometry(0.04, 16, 16);
+    const head = new THREE.Mesh(headGeometry, centerMaterial);
+    head.position.y = 1.52;
+    group.add(head);
+    
+    // 手机夹持器 - 更精致
+    const holderGeometry = new THREE.BoxGeometry(0.12, 0.04, 0.03);
+    const holderMaterial = new THREE.MeshStandardMaterial({ 
+      color: whiteColor, 
+      metalness: 0.3, 
+      roughness: 0.5 
+    });
+    const holder = new THREE.Mesh(holderGeometry, holderMaterial);
+    holder.position.set(0, 1.58, 0);
+    holder.rotation.x = -Math.PI / 8;
     group.add(holder);
     
-    // 手机
-    const phoneGeometry = new THREE.BoxGeometry(0.075, 0.15, 0.01);
-    const phoneMaterial = new THREE.MeshStandardMaterial({ color: phoneColor });
-    const phone = new THREE.Mesh(phoneGeometry, phoneMaterial);
-    phone.position.y = 1.75;
-    phone.rotation.x = -Math.PI / 6; // 略微向下倾斜
-    group.add(phone);
+    // 手机边框 - 浅灰色
+    const phoneFrameGeometry = new THREE.BoxGeometry(0.085, 0.17, 0.012);
+    const phoneFrameMaterial = new THREE.MeshStandardMaterial({ 
+      color: phoneFrameColor, 
+      metalness: 0.5, 
+      roughness: 0.3 
+    });
+    const phoneFrame = new THREE.Mesh(phoneFrameGeometry, phoneFrameMaterial);
+    phoneFrame.position.set(0, 1.68, 0.02);
+    phoneFrame.rotation.x = -Math.PI / 8;
+    group.add(phoneFrame);
     
-    // 手机屏幕（亮起）
-    const screenGeometry = new THREE.PlaneGeometry(0.065, 0.12);
-    const screenMaterial = new THREE.MeshBasicMaterial({ color: 0x4ade80 }); // 绿色屏幕
+    // 手机屏幕 - 深色
+    const screenGeometry = new THREE.PlaneGeometry(0.075, 0.15);
+    const screenMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0x1a1a1a,
+      emissive: 0x222222,
+      emissiveIntensity: 0.3
+    });
     const screen = new THREE.Mesh(screenGeometry, screenMaterial);
-    screen.position.set(0, 1.75, 0.006);
-    screen.rotation.x = -Math.PI / 6;
+    screen.position.set(0, 1.68, 0.027);
+    screen.rotation.x = -Math.PI / 8;
     group.add(screen);
     
-    // 摄像头指示灯（红色闪烁）
-    const indicatorGeometry = new THREE.SphereGeometry(0.01, 8, 8);
+    // 录制指示区域 - 绿色 (表示正在录制)
+    const recordAreaGeometry = new THREE.PlaneGeometry(0.065, 0.12);
+    const recordAreaMaterial = new THREE.MeshBasicMaterial({ 
+      color: 0x22c55e,  // 绿色
+      transparent: true,
+      opacity: 0.9
+    });
+    const recordArea = new THREE.Mesh(recordAreaGeometry, recordAreaMaterial);
+    recordArea.position.set(0, 1.68, 0.028);
+    recordArea.rotation.x = -Math.PI / 8;
+    group.add(recordArea);
+    
+    // 摄像头镜头 - 顶部
+    const lensGeometry = new THREE.CylinderGeometry(0.008, 0.01, 0.005, 16);
+    const lensMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0x111111, 
+      metalness: 0.9, 
+      roughness: 0.1 
+    });
+    const lens = new THREE.Mesh(lensGeometry, lensMaterial);
+    lens.position.set(0, 1.77, 0.03);
+    lens.rotation.x = Math.PI / 2 - Math.PI / 8;
+    group.add(lens);
+    
+    // 录制指示灯（红色闪烁）
+    const indicatorGeometry = new THREE.SphereGeometry(0.008, 8, 8);
     const indicatorMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     const indicator = new THREE.Mesh(indicatorGeometry, indicatorMaterial);
-    indicator.position.set(0.03, 1.82, 0.005);
+    indicator.position.set(0.035, 1.77, 0.025);
     indicator.name = 'recordingIndicator';
     group.add(indicator);
     
@@ -759,12 +831,14 @@ class JumpMatViewer {
       this.scene.add(this.demoMode.person);
     }
     
-    // 创建三脚架 (也缩小)
+    // 创建三脚架 - 放在地毯侧面，面向人物落地区
     if (!this.demoMode.tripod) {
       this.demoMode.tripod = this.createTripodWithPhone();
-      this.demoMode.tripod.scale.set(0.6, 0.6, 0.6);  // 缩小三脚架
-      this.demoMode.tripod.position.set(1.5, 0, -0.8); // 侧面位置，更靠近地毯
-      this.demoMode.tripod.rotation.y = Math.PI / 4; // 朝向地毯
+      this.demoMode.tripod.scale.set(0.55, 0.55, 0.55);  // 稍微缩小
+      // 放在地毯侧面（Z轴负方向），位于落地区附近
+      this.demoMode.tripod.position.set(2.0, 0, -0.7);
+      // 旋转使手机朝向地毯和人物
+      this.demoMode.tripod.rotation.y = Math.PI / 2 + 0.3;
       this.scene.add(this.demoMode.tripod);
     }
     
